@@ -1,0 +1,72 @@
+# === GLOBAL ===
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE config
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# === DEPENDENCIES ===
+**/node_modules/
+
+# === BUILD OUTPUT ===
+**/build/
+**/dist/
+**/.next/         # For Next.js (if ever used)
+**/.turbo/        # Turborepo (optional)
+
+# === TEST COVERAGE ===
+coverage/
+**/coverage/
+
+# === TEMP / CACHE ===
+**/.cache/
+**/tmp/
+**/temp/
+
+# === FRONTEND (React specific) ===
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
+client/public/env.js
+
+# Ignore react build
+client/build/
+
+# === BACKEND (Node/Express) ===
+server/uploads/
+server/.env.development.local
+server/.env.production.local
+
+# === SOCKET & CHAT MODULES (optional) ===
+socket/.env
+chat-socket/.env
+socket/build/
+chat-socket/build/
+
+# === OPTIONAL ===
+# Ignore MongoDB local database dump
+dump/
+
+# PM2 logs
+*.pid
+*.seed
+pids
+logs
