@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap');
+
+@import "tailwindcss";
+
+* {
+    -ms-overflow-style: none;
+    scroll-behavior: smooth; /* ✅ Smooth scrolling */
+    font-family: 'Dancing Script', cursive; /* ✅ Apply custom font globally */
+}
+
+::-webkit-scrollbar {
+    display: none; /* ✅ Hide scrollbar */
+}
+
+body {
+    background-color: white;
+    min-height: 100vh;
+    transition: background-color 0.5s ease-in-out; /* ✅ Smooth background color change */
+
+    /* ✅ Heatmap color customization */
+    .react-calendar-heatmap .color-scale-1 { fill: #d6e685; }
+    .react-calendar-heatmap .color-scale-2 { fill: #8cc665; }
+    .react-calendar-heatmap .color-scale-3 { fill: #44a340; }
+    .react-calendar-heatmap .color-scale-4 { fill: #1e6823; }
+}
+
+/* ✅ Add hover effect for all links */
+a {
+    text-decoration: none;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+a:hover {
+    color: #44a340;
+    transform: scale(1.05);
+}
+
+/* ✅ Smooth fade-in animation for entire app */
+body {
+    opacity: 0;
+    animation: fadeIn 1s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* ✅ Optional: Button hover animation */
+button {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+    background-color: #8cc665;
+}
