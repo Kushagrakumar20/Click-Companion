@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap');
+
+@import "tailwindcss";
+
+* {
+    -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    background-color: white;
+    min-height: 100vh;
+
+    .react-calendar-heatmap .color-scale-1 { fill: #d6e685; }
+    .react-calendar-heatmap .color-scale-2 { fill: #8cc665; }
+    .react-calendar-heatmap .color-scale-3 { fill: #44a340; }
+    .react-calendar-heatmap .color-scale-4 { fill: #1e6823; }
+
+}
