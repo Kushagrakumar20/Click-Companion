@@ -5,7 +5,9 @@ import Center from "./HomeScrenComp/Center";
 import ChatSection from "./ChatSection";
 import { io } from "socket.io-client";
 import { IoLogOut } from "react-icons/io5";
+
 import { FaBars, FaTimes } from "react-icons/fa";
+
 import { useDispatch, useSelector } from "react-redux";
 import {
   getMe2,
@@ -17,7 +19,6 @@ import {
 import { publicRequest } from "../requestMethods";
 import WasAMatch from "./WasAMatch";
 import logoPng from "../assets/logoPng.png";
-import { motion, AnimatePresence } from "framer-motion";
 
 const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -26,11 +27,13 @@ const Home = () => {
   );
   const completeUser = useSelector((state) => state?.user?.currentUser);
 
+  //chat messages code
   const [chatUsers, setChatUsers] = useState([]);
   const [openConvo, setOpenConvo] = useState(null);
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const socket = useRef();
 
   useEffect(() => {
@@ -44,13 +47,21 @@ const Home = () => {
         message: data.message,
       })
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    console.log("arrivalMessage", arrivalMessage);
+  }, [arrivalMessage]);
 
   useEffect(() => {
     socket.current.emit("addUser", currentUser?._id);
     socket.current.on("getUsers", (users) => console.log(users));
   }, [currentUser]);
 
+  // chat mssages end-------------
+
+  // match controls
   const [matchedUser, setMatchedUser] = useState(null);
   const [preferredUsers, setPreferredUsers] = useState([]);
 
@@ -64,7 +75,6 @@ const Home = () => {
     );
     await getPreferredUsers();
   };
-
   const handleReject = async () => {
     await rejectUser(dispatch, preferredUsers[0]?.email, currentUser);
     await getPreferredUsers();
@@ -73,13 +83,15 @@ const Home = () => {
   const getPreferredUsers = async () => {
     const res = await publicRequest.post("/user/getRecommendations");
     setPreferredUsers(res?.data?.recommendations);
+    // console.log(res?.data?.recommendations[0]);
   };
-
   useEffect(() => {
     (async () => {
       await getPreferredUsers();
     })();
   }, []);
+
+  // match controls end-----------
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -97,8 +109,12 @@ const Home = () => {
     await logoutUser(dispatch, navigate);
   };
 
+  // update user's location
+
   const getLocation = async () => {
+    // eslint-disable-next-line no-undef
     if (navigator.geolocation) {
+      // eslint-disable-next-line no-undef
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const latitude = position.coords.latitude;
@@ -118,41 +134,29 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="grid grid-cols-12">
+    <div className="grid grid-cols-12 ">
       {/* Top Bar */}
       <div className="col-span-12 h-16 bg-stone-50 sticky top-0 shadow-sm flex px-6 py-2 z-10 lg:px-20 justify-between items-center">
         {/* Home Icon */}
-        <button
-          className="h-full hover:scale-110 transition-transform"
-          onClick={handleHomeClick}
-        >
-          <img className="h-full" src={logoPng} alt="logo" />
+        <button className="h-full" onClick={handleHomeClick}>
+          <img className="h-full " src={logoPng} alt="" />
         </button>
 
         <div className="flex justify-center items-center gap-5 h-full p-4">
-          {/* Profile Icon with animation */}
-          <motion.div
-            className="avatar cursor-pointer"
-            whileHover={{ scale: 1.1 }}
-            onClick={handleProfileClick}
-          >
-            <div className="w-12 rounded-full border shadow-sm overflow-hidden">
-              <img src={currentUser?.photosLink[0]?.photoLink} alt="profile" />
+          {/* Profile Icon */}
+          <div className="avatar " onClick={handleProfileClick}>
+            <div className="w-12 rounded-full border shadow-sm">
+              <img src={currentUser?.photosLink[0]?.photoLink} />
             </div>
-          </motion.div>
+          </div>
 
-          {/* Logout Button with hover animation */}
-          <motion.button
-            onClick={handleLogout}
-            className="text-4xl"
-            whileHover={{ scale: 1.2, color: "#ef4444" }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
+          {/* Logout Button */}
+          <button onClick={handleLogout} className="text-4xl">
             <IoLogOut />
-          </motion.button>
+          </button>
         </div>
 
-        {/* Hamburger Icon for Sidebar */}
+        {/* Hamburger Icon for Sidebar (only visible on smaller screens) */}
         <div className="lg:hidden">
           <button onClick={toggleSidebar} className="text-2xl">
             {sidebarOpen ? <FaTimes /> : <FaBars />}
@@ -160,37 +164,33 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Sidebar Animation */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ duration: 0.4 }}
-            className="overflow-auto absolute top-[78px] z-10 shadow-sm lg:hidden md:col-span-5 bg-gray-200 w-3/4 h-screen"
-          >
-            <div className="p-2">
-              <button
-                onClick={toggleSidebar}
-                className="text-2xl absolute top-0 right-0"
-              >
-                <FaTimes />
-              </button>
-              <div className="flex flex-col">
-                <div className="mb-4 overflow-auto">
-                  <Conversations
-                    chatUsers={chatUsers}
-                    setChatUsers={setChatUsers}
-                    setOpenConvo={setOpenConvo}
-                    matchedUser={matchedUser}
-                  />
-                </div>
+      {/*????????????????? what is this ??????????????????*/}
+      {/*<button onClick={() => navigate("/home/match")}>match</button>*/}
+
+      {/* Sidebar for Smaller Screens */}
+      {sidebarOpen && (
+        <div className="overflow-auto absolute top-[78px] z-10 shadow-sm lg:hidden md:col-span-5 bg-gray-200">
+          <div className="p-2">
+            <button
+              onClick={toggleSidebar}
+              className="text-2xl absolute top-0 right-0"
+            >
+              <FaTimes />
+            </button>
+
+            <div className=" flex flex-col">
+              <div className=" mb-4 overflow-auto">
+                <Conversations
+                  chatUsers={chatUsers}
+                  setChatUsers={setChatUsers}
+                  setOpenConvo={setOpenConvo}
+                  matchedUser={matchedUser}
+                />
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
 
       {/* Conversations Section */}
       <div className="lg:col-span-2 hidden lg:block">
@@ -204,40 +204,30 @@ const Home = () => {
 
       {/* Center Section */}
       <div
-        className="col-span-12 lg:col-span-10 w-full min-h-[calc(100vh-50px)] pattern-dots pattern-rose-100 pattern-bg-white pattern-size-4 pattern-opacity-100"
+        className="col-span-12 lg:col-span-10 w-full min-h-[calc(100vh-50px)] pattern-dots pattern-rose-100 pattern-bg-white
+  pattern-size-4 pattern-opacity-100"
       >
         <Routes>
           <Route
             path="/"
             element={
               preferredUsers.length > 0 ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Center
-                    user={preferredUsers[0]}
-                    handleLike={handleLike}
-                    handleReject={handleReject}
-                  />
-                </motion.div>
+                <Center
+                  user={preferredUsers[0]}
+                  handleLike={handleLike}
+                  handleReject={handleReject}
+                />
               ) : (
-                <motion.div
-                  className="flex justify-center items-center h-full"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
+                <div className="flex justify-center items-center h-full">
                   <div>
-                    <h3 className="text-stone-500 underline mb-2 animate-pulse">
+                    <h3 className="text-stone-500 underline mb-2">
                       No Recommendations
                     </h3>
                     <p className="text-stone-400">
                       Please try again after some time or change preferences!
                     </p>
                   </div>
-                </motion.div>
+                </div>
               )
             }
           />
