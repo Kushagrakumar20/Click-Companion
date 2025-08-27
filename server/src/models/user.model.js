@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema(
       required: [this.isEmailVerified, "A user must have a username"],
       minLength: [5, "name too short(min=5)!"],
       maxLength: [15, "name too long(max=15)!"],
+      trim: true,   
     },
     dob: {
       type: Date,
@@ -25,16 +26,21 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       required: [true, "Email is must!"],
       validate: [validator.isEmail, "Please provide a valid email!"],
+      trim: true,   
     },
     password: {
       type: String,
-      required: [!this.isOAuth, "Please create a password!"],
+      required: function () {
+        return !this.isOAuth;
+      },
       minlength: 8,
       select: false, //do not select this ever
     },
     phoneNumber: {
       type: Number,
-      required: !this.isOAuth,
+      required: function () {
+        return !this.isOAuth;
+      },
       unique: true,
     },
     height: {
@@ -63,9 +69,11 @@ const userSchema = new mongoose.Schema(
       type: {
         type: String,
         enum: ["Point"],
+        default: "Point",
       },
       coordinates: {
         type: [Number],
+        default: [0, 0],     
       },
     },
     bills: [
@@ -175,23 +183,14 @@ const userSchema = new mongoose.Schema(
 );
 userSchema.plugin(require("mongoose-autopopulate"));
 
-function calculateAge(birthDateObj) {
+function calculateAge(dob) {
   const today = new Date();
-
-  console.log("called");
-
-  let age = today.getFullYear() - birthDateObj.getFullYear();
-  const monthDiff = today.getMonth() - birthDateObj.getMonth();
-
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < birthDateObj.getDate())
-  ) {
-    age--;
-  }
-
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
   return age;
 }
+
 
 //before saving, encrypt the password and remove confirm password
 userSchema.pre("save", async function(next) {
@@ -204,21 +203,15 @@ userSchema.pre("save", async function(next) {
 });
 
 //method to check the password
-userSchema.methods.correctPassword = async function(
-  candidatePassword,
-  userPassword,
-) {
-  return await bcryptjs.compare(candidatePassword, userPassword);
+userSchema.methods.isPasswordCorrect = async function (candidate, actual) {
+  return bcrypt.compare(candidate, actual);
 };
 
 //returns true if token was created BEFORE change in password
-userSchema.methods.changePasswordAfter = function(JWTTimeStamp) {
+userSchema.methods.changedAfter = function (jwtTime) {
   if (this.passwordChangedAt) {
-    const changedTimestamp = parseInt(
-      `${this.passwordChangedAt.getTime() / 1000}`,
-      10,
-    );
-    return JWTTimeStamp < changedTimestamp;
+    const changed = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+    return jwtTime < changed;
   }
   return false;
 };
@@ -233,24 +226,11 @@ userSchema.pre("save", function(next) {
 });
 
 //creates a reset password token to
-userSchema.methods.createPasswordResetToken = function() {
-  //we cant simply store resetToken as it is into the database due to security issues
-  const resetToken = crypto.randomBytes(32).toString("hex");
-
-  //we will store the hashed token instead
-  //we will send this original resetToken to user on email
-  //when user will give us this token, we will hash this token and compare it with the one stored in the database
-
-  //the next line will update the resetToken
-  this.passwordResetToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; //valid for 10 minutes
-
-  //we have not 'saved' this user document yet, that will be done in the resetPassword function
-  //that is supposed to call createPasswordResetToken
-  return resetToken;
+userSchema.methods.generateResetToken = function () {
+  const token = crypto.randomBytes(32).toString("hex");
+  this.passwordResetToken = crypto.createHash("sha256").update(token).digest("hex");
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  return token;
 };
 
 const User = mongoose.model("User", userSchema);

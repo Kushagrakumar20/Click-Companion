@@ -5,13 +5,16 @@ const messageSchema = new mongoose.Schema(
     senderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,    
     },
     conversationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Conversation",
+      required: true,    
     },
     message: {
       type: String,
+      trim: true,
     },
     type: {
       type: String,
