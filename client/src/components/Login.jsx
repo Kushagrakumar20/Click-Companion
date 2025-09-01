@@ -16,8 +16,6 @@ function Login() {
   const [password, setPassword] = useState("");
   const [verified, setVerified] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [shake, setShake] = useState(false);
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector(
@@ -32,6 +30,7 @@ function Login() {
   }, [currentUser, navigate]);
 
   useEffect(() => {
+    // Once the component mounts or email/password changes, set imageLoaded to true to trigger the fade-in effect
     setImageLoaded(true);
   }, [email, password]);
 
@@ -45,50 +44,44 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Handle login logic here
+    console.log("Email:", email);
+    console.log("Password:", password);
 
-    if (!email || !password) {
-      toast.error("Please fill in all fields!");
-      setShake(true);
-      setTimeout(() => setShake(false), 500);
-      return;
-    }
-
+    // Reset form fields
     await login(dispatch, { loginField: email, password: password });
   };
 
   return (
-    <div className="flex h-screen justify-center items-center bg-gradient-to-r from-rose-100 via-rose-50 to-rose-100 animate-gradient">
-      <div className="flex justify-evenly items-center w-full gap-10 align-middle h-full">
-        
-        {/* Left side: Image with smooth fade-in */}
+    <div className="flex h-screen justify-center items-center bg-rose-50">
+      <div
+        className="flex justify-evenly
+       items-center w-full gap-10 align-middle h-full"
+      >
+        {/* Left side: Image */}
+
         <div
-          className={`w-[40%] sm:flex p-4 bg-white shadow-lg border rounded-xl hidden items-center justify-center overflow-hidden h-full transform transition-all duration-1000 ease-in-out ${
-            imageLoaded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
+          className={`w-[40%] sm:flex p-4 bg-white shadow-md border rounded-lg hidden items-center justify-center overflow-hidden h-full ${
+            imageLoaded
+              ? "opacity-100 transition-opacity duration-1000"
+              : "opacity-0"
           }`}
         >
           <img
             src={sideImage}
             alt="Love"
-            className="h-[90%] scale-105 hover:scale-110 transition-transform duration-700 ease-in-out"
+            // className="h-[100%]"
             onLoad={() => setImageLoaded(true)}
           />
         </div>
 
         {/* Right side: Login form */}
-        <div
-          className={`bg-white rounded-xl shadow-xl lg:w-[30%] sm:w-fit p-10 transform transition-all duration-700 ease-in-out ${
-            shake ? "animate-shake" : ""
-          }`}
-        >
+        <div className="bg-white rounded-lg shadow-md lg:w-[30%] sm:w-fit p-10">
           <form className="max-w-sm mx-auto" onSubmit={handleSubmit}>
-            <h2 className="text-3xl font-bold text-center mb-6 text-rose-500 animate-fadeIn">
-              Welcome Back ❤️
-            </h2>
-
             <div className="mb-5">
               <label
                 htmlFor="email"
-                className="block text-lg mb-1 font-medium text-gray-900 dark:text-white"
+                className="block  text-lg mb-1 font-medium text-gray-900 dark:text-white"
               >
                 Your email or phone number
               </label>
@@ -97,12 +90,11 @@ function Login() {
                 id="email"
                 value={email}
                 onChange={handleEmailChange}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-400 focus:border-rose-400 block w-full p-2.5 transition-all duration-300 hover:shadow-md"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Email or phone number"
                 required
               />
             </div>
-
             <div className="mb-5">
               <label
                 htmlFor="password"
@@ -113,47 +105,44 @@ function Login() {
               <PasswordInput
                 type="password"
                 id="password"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-400 focus:border-rose-400 block w-full p-2.5 transition-all duration-300 hover:shadow-md"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 required
                 placeholder="Password"
                 value={password}
                 onChange={handlePasswordChange}
               />
             </div>
-
             <div
-              onClick={() => navigate("/register")}
-              className="text-center my-3 text-gray-700"
+              onClick={() => {
+                navigate("/register");
+              }}
             >
               Not registered?{" "}
-              <span className="text-rose-500 hover:text-rose-600 underline cursor-pointer transition-all duration-200">
-                Click here
+              <span className="text-blue-500 underline cursor-pointer">
+                click here
               </span>
             </div>
 
-            {/* Submit button with animation */}
             <button
               type="submit"
-              className="text-white my-3 bg-rose-400 hover:bg-rose-500 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center transition-transform transform hover:scale-105"
+              className="text-white my-3 bg-rose-400 mr-3 hover:bg-rose-500 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               Submit
             </button>
 
-            {/* Google button with hover effect */}
             <button
               type="button"
-              className="text-white bg-[#4285F4] hover:bg-[#357ae8] focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 mb-2 transition-transform transform hover:scale-105"
+              className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center  me-2 mb-2"
               onClick={(e) => {
                 googleAuthInitiator(e);
               }}
             >
-              <FaGoogle className="mr-3 animate-pulse" />
+              <FaGoogle className="mr-3" />
               Sign in with Google
             </button>
           </form>
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 }
